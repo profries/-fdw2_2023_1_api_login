@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.get("/", usuarioController.listar);
 
+router.get("/busca", usuarioController.buscarUsuario)
+
 router.get("/:id", usuarioController.buscarPorId)
 
 router.post("/", usuarioController.inserir)

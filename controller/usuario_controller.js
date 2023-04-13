@@ -98,3 +98,28 @@ exports.deletar = async (req, res) => {
     }            
 
 }
+
+exports.buscarUsuario = async (req, res) => {
+    if(req.query && req.query.email){
+        try{ 
+            let usuarioEncontrado = await Usuario.findOne({email: req.query.email});
+            if(usuarioEncontrado){ 
+                const usuarioEncontradoSemSenha = Object.assign({}, {
+                    _id: usuarioEncontrado.id, 
+                    nome: usuarioEncontrado.nome, 
+                    email: usuarioEncontrado.email
+                })
+                return res.json(usuarioEncontradoSemSenha);
+            }
+            else {
+                return res.status(404).json({ Erro: "Usuario nao encontrado"});
+            }
+        } catch(err) {
+            res.status(500).json({Erro:err});
+        }                    
+    }
+    else {
+        res.status(400).json({Erro: "Faltou o parametro email"})
+    }
+
+}
