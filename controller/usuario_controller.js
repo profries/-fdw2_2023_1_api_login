@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
 const Usuario = require("../model/usuario");
 
 exports.listar = async (req, res) => { 
@@ -41,6 +42,10 @@ exports.inserir = async (req, res) => {
         && usuarioRequest.email && usuarioRequest.senha){
         //se OK, cadastro os usuarios e retorno 201
         const usuarioNovo = new Usuario(usuarioRequest);
+        
+        console.log("Senha 1:", usuarioNovo.senha);
+        usuarioNovo.senha = await bcrypt.hash(usuarioRequest.senha, 10);
+        console.log("Senha 2:", usuarioNovo.senha);
 
         try{ 
             const usuarioSalvo = await usuarioNovo.save();
@@ -129,7 +134,9 @@ exports.validarLogin = async (req, res) => {
     if(req.body && req.body.email && req.body.senha){
         try{
             let usuarioEncontrado = await Usuario.findOne({email: req.body.email});
-            if(usuarioEncontrado && usuarioEncontrado.senha == req.body.senha){ 
+
+            const validaSenha = await bcrypt.compare(req.body.senha, usuarioEncontrado.senha)
+            if(usuarioEncontrado && validaSenha){ 
                 const token = jwt.sign({
                     id: usuarioEncontrado.id                    
                 }, 'Sen@crs2023', { expiresIn: "1h"}); 
