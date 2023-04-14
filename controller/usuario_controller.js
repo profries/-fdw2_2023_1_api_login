@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken")
 const Usuario = require("../model/usuario");
 
 exports.listar = async (req, res) => { 
@@ -122,4 +123,26 @@ exports.buscarUsuario = async (req, res) => {
         res.status(400).json({Erro: "Faltou o parametro email"})
     }
 
+}
+
+exports.validarLogin = async (req, res) => {
+    if(req.body && req.body.email && req.body.senha){
+        try{
+            let usuarioEncontrado = await Usuario.findOne({email: req.body.email});
+            if(usuarioEncontrado && usuarioEncontrado.senha == req.body.senha){ 
+                const token = jwt.sign({
+                    id: usuarioEncontrado.id                    
+                }, 'Sen@crs2023', { expiresIn: "1h"}); 
+                res.status(201).json({token: token})
+            }
+            else {
+                res.status(401).json({Erro: "Usuario ou senha invalidos"});
+            }
+        } catch(err) {
+            res.status(500).json({Erro:err});
+        }                    
+    }
+    else {
+        res.status(401).json({Erro: "Usuario ou senha invalidos"});
+    }
 }

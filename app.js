@@ -2,6 +2,8 @@ const express = require('express');
 const { default: mongoose } = require('mongoose');
 const rotaProduto = require('./rotas/produto_rotas')
 const rotaUsuario = require('./rotas/usuario_rotas')
+const rotaLogin = require('./rotas/login_rotas')
+const loginMiddleware = require('./middleware/login_middleware')
 
 
 const app = express();
@@ -26,9 +28,14 @@ mongoose.connect('mongodb://127.0.0.1:27017/app_produtos')
 
 app.use(trataLog);
 
-app.use('/api/produtos', rotaProduto);
+app.use('/api/login', rotaLogin)
 
 app.use('/api/usuarios', rotaUsuario);
+
+app.use(loginMiddleware.validarToken)
+
+app.use('/api/produtos', rotaProduto);
+
 
 app.listen(PORTA, () => {
     console.log(`Servidor iniciado na porta ${PORTA}`);
